@@ -6,3 +6,4 @@
 2. spring shiro
 3. dubbo
 4. websocket
+5. mybatis
