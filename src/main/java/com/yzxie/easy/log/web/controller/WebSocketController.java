@@ -27,27 +27,22 @@ public class WebSocketController {
     @Autowired
     private WebSocketService webSocketService;
 
-    /**
-     * 测试广播
-     * @return
-     */
-    @RequestMapping("/testBroadCast")
-    public ResData testBroadCast() {
-        LOG.info("WebSocketController testBroadCast.");
-        long count = broadCastCount.incrementAndGet();
-        webSocketService.broadcastMessageToClients(count);
-        return new ResData("broadcastToClients");
-    }
 
     /**
      * 接收客户端发送过来的消息
      * /acceptMessage对应客户端sockjs.send方法的topic参数
      * @param message
      */
-    @MessageMapping("/acceptMessage")
-    public void acceptMessage(NormalMessage message) {
-        webSocketService.broadcastMessageToClients(message.getContent());
-        LOG.info("acceptMessage: {}", message.getContent());
+    @MessageMapping("/groupMessage")
+    public void groupMessage(NormalMessage message) {
+        if (message != null) {
+            long count = broadCastCount.incrementAndGet();
+            JSONObject broadcastMessage = new JSONObject();
+            broadcastMessage.put("content", message.getContent());
+            webSocketService.broadcastMessageToClients(broadcastMessage);
+
+            LOG.info("groupMessage: {}, No.{}", message.getContent(), count);
+        }
     }
 
     /**
@@ -59,6 +54,7 @@ public class WebSocketController {
             JSONObject toMessage = new JSONObject();
             toMessage.put("content", message.getContent());
             webSocketService.sendChatMessage(message.getUserName(), toMessage);
+
             LOG.info("chat to {}", message.getUserName());
         }
     }

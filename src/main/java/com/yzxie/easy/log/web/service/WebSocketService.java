@@ -2,7 +2,6 @@ package com.yzxie.easy.log.web.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yzxie.easy.log.web.constant.WebSocketConstant;
-import com.yzxie.easy.log.web.data.websocket.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -17,17 +16,9 @@ public class WebSocketService {
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
-    /**
-     * 向浏览器广播消息
-     */
-    public void broadcastMessageToClients(long broadcastCount) {
-        simpMessagingTemplate.convertAndSend("/topic/realLog",
-                new Response("hello world: " + broadcastCount));
-    }
 
-    public void broadcastMessageToClients(String content) {
-        simpMessagingTemplate.convertAndSend("/topic/realLog",
-                new Response(content));
+    public void broadcastMessageToClients(JSONObject content) {
+        simpMessagingTemplate.convertAndSend(WebSocketConstant.BROADCAST_CHANNEL, content);
     }
 
     public void sendChatMessage(String toUserName, JSONObject content) {

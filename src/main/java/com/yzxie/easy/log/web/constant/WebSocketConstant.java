@@ -7,4 +7,6 @@ package com.yzxie.easy.log.web.constant;
  */
 public class WebSocketConstant {
     public static final String P2P_CHANNEL = "/queue/chat";
+
+    public static final String BROADCAST_CHANNEL = "/topic/broadcastMessage";
 }
