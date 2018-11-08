@@ -1,15 +1,13 @@
 package com.yzxie.easy.log.web.data.websocket;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
  * @author xieyizun
- * @date 4/11/2018 15:06
+ * @date 8/11/2018 22:29
  * @description:
  */
 @Data
-@AllArgsConstructor
-public class Message {
-    String content;
+public class NormalMessage {
+    private String content;
 }

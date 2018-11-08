@@ -1,5 +1,7 @@
 package com.yzxie.easy.log.web.service;
 
+import com.alibaba.fastjson.JSONObject;
+import com.yzxie.easy.log.web.constant.WebSocketConstant;
 import com.yzxie.easy.log.web.data.websocket.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -28,7 +30,7 @@ public class WebSocketService {
                 new Response(content));
     }
 
-    public void sendChatMessage(String username, String content) {
-        simpMessagingTemplate.convertAndSendToUser(username, "/queue/chat", content);
+    public void sendChatMessage(String toUserName, JSONObject content) {
+        simpMessagingTemplate.convertAndSendToUser(toUserName, WebSocketConstant.P2P_CHANNEL, content);
     }
 }
