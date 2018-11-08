@@ -29,6 +29,10 @@ public class ShiroConfig {
         // 拦截器，匹配原则为最上面的最优先匹配
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         // 配置不会被拦截的接口
+        //注意/这个是必须的，因为前端static/index.html对应这个路由，而其他是在static目录下，具体可见浏览器sources下面
+        filterChainDefinitionMap.put("/", "anon");
+        filterChainDefinitionMap.put("/static/**", "anon"); //匿名访问静态资源
+
         filterChainDefinitionMap.put("/login", "anon");
         filterChainDefinitionMap.put("/register", "anon");
         filterChainDefinitionMap.put("/hello", "anon");
