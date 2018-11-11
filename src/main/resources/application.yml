@@ -39,3 +39,7 @@ mybatis:
   type-aliases-package: com.yzxie.easy.log.web.dao.entity
   configuration:
     default-fetch-size: 100
+
+#netty server配置
+netty:
+  port: 8089
