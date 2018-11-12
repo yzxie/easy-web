@@ -10,6 +10,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,10 @@ public class NettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(NettyServer.class);
 
     private static final int WORKER_NUM = Runtime.getRuntime().availableProcessors()/2;
+
+    @Autowired
+    private NettyServerInitializer nettyServerInitializer;
+
     /**
      * 监听端口号
      */
@@ -46,7 +51,7 @@ public class NettyServer {
             // 处理客户端请求的配置
             serverBootstrap.childOption(ChannelOption.TCP_NODELAY, true);
             serverBootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
-            serverBootstrap.childHandler(new NettyServerInitializer());
+            serverBootstrap.childHandler(nettyServerInitializer);
             // 绑定端口，开始接收进来的连接
             ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
             LOG.info("netty listen on port: {}", port);

@@ -3,10 +3,13 @@ package com.yzxie.easy.log.web.netty.handler;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.yzxie.easy.log.web.data.ResData;
+import com.yzxie.easy.log.web.service.WebSocketService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 
@@ -15,8 +18,12 @@ import java.net.InetSocketAddress;
  * @date 11/11/2018 21:43
  * @description:
  */
+@Component
 public class LogMessageHandler extends SimpleChannelInboundHandler<String> {
     private static final Logger LOG = LoggerFactory.getLogger(LogMessageHandler.class);
+
+    @Autowired
+    private WebSocketService webSocketService;
 
     /**
      * netty5.0 -> messageReceived，收到客户端的请求
@@ -32,9 +39,9 @@ public class LogMessageHandler extends SimpleChannelInboundHandler<String> {
         try {
             // 报文解析
             JSONObject data = JSON.parseObject(msg);
-            // TODO 将消息通过websocket传递给浏览器
+            // 将消息通过websocket传递给浏览器
+            webSocketService.broadcastLogMessageToClients(data);
             LOG.info("LogMessageHandler received: {}", data);
-
             // 响应log-engine客户端
             response = new StringBuilder();
             response.append(res);

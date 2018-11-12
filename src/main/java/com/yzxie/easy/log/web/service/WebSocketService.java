@@ -24,4 +24,10 @@ public class WebSocketService {
     public void sendChatMessage(String toUserName, JSONObject content) {
         simpMessagingTemplate.convertAndSendToUser(toUserName, WebSocketConstant.P2P_CHANNEL, content);
     }
+
+    public void broadcastLogMessageToClients(JSONObject logContent) {
+        JSONObject content = new JSONObject();
+        content.put("logContent", logContent);
+        simpMessagingTemplate.convertAndSend(WebSocketConstant.LOG_CHANNEL, content);
+    }
 }
