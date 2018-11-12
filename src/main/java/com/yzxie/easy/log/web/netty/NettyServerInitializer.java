@@ -8,9 +8,12 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.CharsetUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -35,6 +38,9 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
         pipeline.addLast(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
         pipeline.addLast(new StringDecoder(CharsetUtil.UTF_8));
         pipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));
+        // 设置心跳检查，维持长连接
+        // 客户端写日志数据过来，则服务端为读
+        pipeline.addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS));
         pipeline.addLast(logMessageHandler);
     }
 }

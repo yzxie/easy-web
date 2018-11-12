@@ -6,6 +6,7 @@ import com.yzxie.easy.log.web.data.ResData;
 import com.yzxie.easy.log.web.service.WebSocketService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,10 @@ public class LogMessageHandler extends SimpleChannelInboundHandler<String> {
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, String msg) throws Exception {
         StringBuilder response = null;
         ResData res = new ResData();
+        if ("pong".equals(msg)) {
+            LOG.info("received client pong.");
+            return;
+        }
 
         try {
             // 报文解析
@@ -70,5 +75,32 @@ public class LogMessageHandler extends SimpleChannelInboundHandler<String> {
     public void exceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable cause) {
         // 当出现异常时关闭连接
         channelHandlerContext.close();
+    }
+
+    /**
+     * 长连接心跳检测
+     * @param channelHandlerContext
+     * @param evt
+     */
+    @Override
+    public void userEventTriggered(ChannelHandlerContext channelHandlerContext, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            IdleStateEvent idleStateEvent = (IdleStateEvent)evt;
+            switch (idleStateEvent.state()) {
+                case READER_IDLE:
+                    LOG.info("client READER_IDLE, ping.");
+                    StringBuilder ping = new StringBuilder("ping").append("\n");
+                    channelHandlerContext.writeAndFlush(ping);
+                    break;
+                case WRITER_IDLE:
+                    LOG.info("client WRITER_IDLE, ping.");
+                    break;
+                case ALL_IDLE:
+                    LOG.info("client ALL_IDLE, ping.");
+                    break;
+            }
+        } else {
+            super.userEventTriggered(channelHandlerContext, evt);
+        }
     }
 }
