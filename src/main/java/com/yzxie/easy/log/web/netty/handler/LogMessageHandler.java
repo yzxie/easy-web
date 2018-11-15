@@ -6,11 +6,9 @@ import com.yzxie.easy.log.web.data.ResData;
 import com.yzxie.easy.log.web.service.WebSocketService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 
@@ -19,12 +17,16 @@ import java.net.InetSocketAddress;
  * @date 11/11/2018 21:43
  * @description:
  */
-@Component
 public class LogMessageHandler extends SimpleChannelInboundHandler<String> {
     private static final Logger LOG = LoggerFactory.getLogger(LogMessageHandler.class);
 
-    @Autowired
+    public static final AttributeKey<String> CLIENT_IP = AttributeKey.valueOf("clientIp");
+
     private WebSocketService webSocketService;
+
+    public LogMessageHandler(WebSocketService webSocketService) {
+        this.webSocketService = webSocketService;
+    }
 
     /**
      * netty5.0 -> messageReceived，收到客户端的请求
@@ -68,39 +70,21 @@ public class LogMessageHandler extends SimpleChannelInboundHandler<String> {
     public void channelActive(ChannelHandlerContext channelHandlerContext) throws Exception {
         InetSocketAddress inetSocketAddress = (InetSocketAddress)channelHandlerContext.channel().remoteAddress();
         String clientIp = inetSocketAddress.getAddress().getHostAddress();
+        // 记录当前连接的远程客户端IP
+        channelHandlerContext.channel().attr(CLIENT_IP).set(clientIp);
         LOG.info("receive client connection: {}", clientIp);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext channelHandlerContext) throws Exception {
+        String clientIp = channelHandlerContext.channel().attr(CLIENT_IP).get();
+        LOG.info("client connection inactive: {}", clientIp);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable cause) {
         // 当出现异常时关闭连接
         channelHandlerContext.close();
-    }
-
-    /**
-     * 长连接心跳检测
-     * @param channelHandlerContext
-     * @param evt
-     */
-    @Override
-    public void userEventTriggered(ChannelHandlerContext channelHandlerContext, Object evt) throws Exception {
-        if (evt instanceof IdleStateEvent) {
-            IdleStateEvent idleStateEvent = (IdleStateEvent)evt;
-            switch (idleStateEvent.state()) {
-                case READER_IDLE:
-                    LOG.info("client READER_IDLE, ping.");
-                    StringBuilder ping = new StringBuilder("ping").append("\n");
-                    channelHandlerContext.writeAndFlush(ping);
-                    break;
-                case WRITER_IDLE:
-                    LOG.info("client WRITER_IDLE, ping.");
-                    break;
-                case ALL_IDLE:
-                    LOG.info("client ALL_IDLE, ping.");
-                    break;
-            }
-        } else {
-            super.userEventTriggered(channelHandlerContext, evt);
-        }
+        LOG.error("exception catch, close channel {}", cause.getStackTrace());
     }
 }

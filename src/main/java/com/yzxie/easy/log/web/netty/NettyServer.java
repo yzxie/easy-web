@@ -1,5 +1,6 @@
 package com.yzxie.easy.log.web.netty;
 
+import com.yzxie.easy.log.web.service.WebSocketService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -26,7 +27,7 @@ public class NettyServer {
     private static final int WORKER_NUM = Runtime.getRuntime().availableProcessors()/2;
 
     @Autowired
-    private NettyServerInitializer nettyServerInitializer;
+    private WebSocketService webSocketService;
 
     /**
      * 监听端口号
@@ -51,7 +52,7 @@ public class NettyServer {
             // 处理客户端请求的配置
             serverBootstrap.childOption(ChannelOption.TCP_NODELAY, true);
             serverBootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
-            serverBootstrap.childHandler(nettyServerInitializer);
+            serverBootstrap.childHandler(new NettyServerInitializer(webSocketService));
             // 绑定端口，开始接收进来的连接
             ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
             LOG.info("netty listen on port: {}", port);
