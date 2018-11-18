@@ -1,5 +1,6 @@
 package com.yzxie.easy.log.web.netty;
 
+import com.yzxie.easy.log.web.netty.handler.ConnectHandler;
 import com.yzxie.easy.log.web.netty.handler.LogMessageHandler;
 import com.yzxie.easy.log.web.netty.handler.PingReqHandler;
 import com.yzxie.easy.log.web.service.WebSocketService;
@@ -45,6 +46,7 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
         pipeline.addLast(new StringDecoder(CharsetUtil.UTF_8));
         pipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));
         // 注意：数据读写相关的handler需要放在encoder和decoder后面，否则无法读取或写数据
+        pipeline.addLast(new ConnectHandler());
         pipeline.addLast(new PingReqHandler());
         // 真正的数据处理器
         pipeline.addLast(new LogMessageHandler(this.webSocketService));

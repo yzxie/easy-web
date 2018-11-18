@@ -6,22 +6,15 @@ import com.yzxie.easy.log.web.data.ResData;
 import com.yzxie.easy.log.web.service.WebSocketService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.util.AttributeKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.InetSocketAddress;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author xieyizun
  * @date 11/11/2018 21:43
  * @description:
  */
+@Slf4j
 public class LogMessageHandler extends SimpleChannelInboundHandler<String> {
-    private static final Logger LOG = LoggerFactory.getLogger(LogMessageHandler.class);
-
-    public static final AttributeKey<String> CLIENT_IP = AttributeKey.valueOf("clientIp");
-
     private WebSocketService webSocketService;
 
     public LogMessageHandler(WebSocketService webSocketService) {
@@ -39,7 +32,7 @@ public class LogMessageHandler extends SimpleChannelInboundHandler<String> {
         StringBuilder response = null;
         ResData res = new ResData();
         if ("pong".equals(msg)) {
-            LOG.info("received client pong.");
+            log.info("received client pong.");
             return;
         }
 
@@ -48,7 +41,7 @@ public class LogMessageHandler extends SimpleChannelInboundHandler<String> {
             JSONObject data = JSON.parseObject(msg);
             // 将消息通过websocket传递给浏览器
             webSocketService.broadcastLogMessageToClients(data);
-            LOG.info("LogMessageHandler received: {}", data);
+            log.info("LogMessageHandler received: {}", data);
             // 响应log-engine客户端
             response = new StringBuilder();
             response.append(res);
@@ -57,34 +50,14 @@ public class LogMessageHandler extends SimpleChannelInboundHandler<String> {
         } catch (Exception e) {
             res.setRet(1);
             res.setData("server error");
-            LOG.error("log message handle error, {}, {}", e, e.getMessage());
+            log.error("log message handle error, {}, {}", e, e.getMessage());
         }
-    }
-
-    /**
-     * 客户端连接建立
-     * @param channelHandlerContext
-     * @throws Exception
-     */
-    @Override
-    public void channelActive(ChannelHandlerContext channelHandlerContext) throws Exception {
-        InetSocketAddress inetSocketAddress = (InetSocketAddress)channelHandlerContext.channel().remoteAddress();
-        String clientIp = inetSocketAddress.getAddress().getHostAddress();
-        // 记录当前连接的远程客户端IP
-        channelHandlerContext.channel().attr(CLIENT_IP).set(clientIp);
-        LOG.info("receive client connection: {}", clientIp);
-    }
-
-    @Override
-    public void channelInactive(ChannelHandlerContext channelHandlerContext) throws Exception {
-        String clientIp = channelHandlerContext.channel().attr(CLIENT_IP).get();
-        LOG.info("client connection inactive: {}", clientIp);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable cause) {
         // 当出现异常时关闭连接
         channelHandlerContext.close();
-        LOG.error("exception catch, close channel {}", cause.getStackTrace());
+        log.error("exception catch, close channel {}", cause.getStackTrace());
     }
 }
