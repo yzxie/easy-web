@@ -18,6 +18,9 @@
     <dubbo:reference id="logStorageService"
                      interface="com.yzxie.easy.log.common.api.LogQueryServiceApi"
                      registry="zookeeper"
-                     check="false"
-    />
+                     check="false" />
+    <dubbo:reference id="logConfService"
+                     interface="com.yzxie.easy.log.common.api.LogConfServiceApi"
+                     registry="zookeeper"
+                     check="false" />
 </beans>

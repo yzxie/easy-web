@@ -26,8 +26,6 @@ public class WebSocketService {
     }
 
     public void broadcastLogMessageToClients(JSONObject logContent) {
-        JSONObject content = new JSONObject();
-        content.put("logContent", logContent);
-        simpMessagingTemplate.convertAndSend(WebSocketConstant.LOG_CHANNEL, content);
+        simpMessagingTemplate.convertAndSend(WebSocketConstant.LOG_CHANNEL, logContent);
     }
 }

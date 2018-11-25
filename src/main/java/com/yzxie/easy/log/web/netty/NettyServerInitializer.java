@@ -42,7 +42,7 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
         // 客户端写日志数据过来，则服务端为读
         pipeline.addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS));
         // 基于换行符分隔
-        pipeline.addLast(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
+        pipeline.addLast(new DelimiterBasedFrameDecoder(1048576, Delimiters.lineDelimiter()));
         pipeline.addLast(new StringDecoder(CharsetUtil.UTF_8));
         pipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));
         // 注意：数据读写相关的handler需要放在encoder和decoder后面，否则无法读取或写数据
