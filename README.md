@@ -8,3 +8,6 @@
 3. dubbo
 4. websocket
 5. mybatis
+# 前端UI
+项目地址：https://github.com/yzxie/easy-ui.git
+![图片](https://github.com/yzxie/easy-ui/raw/master/public/img/secondFlow.png)
